@@ -1,5 +1,6 @@
 import pygame
 import random
+import math
 
 # Add draw condition
 pygame.init()
@@ -113,6 +114,72 @@ def checkEndGame(playersChoiceList):
         if playersChoiceList[i] == 0:
             return 0
     return 3
+
+
+# function which checks only end of game but does not draw any lines
+def checkEndGameDontDraw(playersChoiceList):
+    for i in range(3):
+        if playersChoiceList[i] == 0:
+            continue
+        if playersChoiceList[i] == playersChoiceList[i + 3] and playersChoiceList[i] == playersChoiceList[i + 6]:
+            return playersChoiceList[i]
+        if playersChoiceList[3 * i] == playersChoiceList[3 * i + 1] and playersChoiceList[3 * i + 1] == \
+                playersChoiceList[3 * i + 2]:
+            return playersChoiceList[3 * i]
+    if playersChoiceList[0] == playersChoiceList[4] and playersChoiceList[4] == playersChoiceList[8]:
+        return playersChoiceList[0]
+    if playersChoiceList[2] == playersChoiceList[4] and playersChoiceList[4] == playersChoiceList[6]:
+        return playersChoiceList[2]
+    for i in range(9):
+        if playersChoiceList[i] == 0:
+            return 0
+    return 3
+
+
+# function checking for optimal move for computer
+def getBestMove(playersChoiceList):
+    bestScore = -math.inf
+    move = 0
+    for i in range(9):
+        if playersChoiceList[i] == 0:
+            playersChoiceList[i] = 2
+            score = minimax(playersChoiceList, 0, False)
+            playersChoiceList[i] = 0
+            if score > bestScore:
+                bestScore = score
+                move = i
+    return move
+
+
+# Minimax function
+def minimax(playersChoiceList, depth, isMaximizing):
+    result = checkEndGameDontDraw(playersChoiceList)
+    if result is not 0:
+        if result is 1:
+            return -10
+        if result is 2:
+            return 10
+        if result is 3:
+            return 0
+    if isMaximizing:
+        bestScore = -math.inf
+        for i in range(9):
+            if playersChoiceList[i] == 0:
+                playersChoiceList[i] = 2
+                score = minimax(playersChoiceList, depth + 1, False)
+                playersChoiceList[i] = 0
+                bestScore = max(score, bestScore)
+        return bestScore
+    else:
+        bestScore = math.inf
+        for i in range(9):
+            if playersChoiceList[i] == 0:
+                playersChoiceList[i] = 1
+                score = minimax(playersChoiceList, depth + 1, True)
+                playersChoiceList[i] = 0
+                bestScore = min(score, bestScore)
+        return bestScore
+    return 0
 
 
 # initializing buttons
@@ -254,22 +321,46 @@ def game():
                 playersChoiceList[i] = 0
             screen.fill((0, 0, 0))
             pygame.display.update()
-            chance = random.randint(1, 2)
+            chance = 1
             # single player logic
+            whoWon = 0
             countFlag = True
             while singlePlayerGame:
-                whoWon = checkEndGame(playersChoiceList)
-                showTictactoeBoard("You", "Comp", str(player1Score), str(player2Score), chance, whoWon,
-                                   playersChoiceList)
-                pygame.display.update()
+                if whoWon == 0:
+                    whoWon = checkEndGame(playersChoiceList)
+                if whoWon == 1 and countFlag:
+                    player1Score += 1
+                    countFlag = False
+                if whoWon == 2 and countFlag:
+                    player2Score += 1
+                    countFlag = False
                 for events in pygame.event.get():
                     if events.type == pygame.QUIT:
                         running = False
                         singlePlayerGame = False
                         pygame.quit()
                         quit()
+                    if events.type == pygame.MOUSEBUTTONDOWN:
+                        pos = pygame.mouse.get_pos()
+                        x = (pos[0] // 166)
+                        y = (pos[1] - 50) // 166
+                        i = y * 3 + x
+                        if playersChoiceList[i] is 0:
+                            if chance == 1:
+                                playersChoiceList[i] = 1
+                                # pygame.time.wait(1000)
+                                i = getBestMove(playersChoiceList)
+                                if playersChoiceList[i] is 0:
+                                    playersChoiceList[i] = 2
+                showTictactoeBoard("You", "Comp", str(player1Score), str(player2Score), chance, whoWon,
+                                   playersChoiceList)
+                pygame.display.update()
+                if whoWon is not 0:
+                    pygame.time.wait(1000)
+                    break
 
             # double player logic
+            chance = random.randint(1, 2)
             countFlag = True
             whoWon = 0
             while doublePlayerGame:
@@ -314,7 +405,7 @@ def game():
                 whoWonMssg = ticTacToeMssgFont.render("Player 2 Won", True, (255, 255, 255))
             if player1Score == points and singlePlayerGame:
                 whoWonMssg = ticTacToeMssgFont.render("You Won", True, (255, 255, 255))
-            if player1Score == points and singlePlayerGame:
+            if player2Score == points and singlePlayerGame:
                 whoWonMssg = ticTacToeMssgFont.render("Computer Won", True, (255, 255, 255))
             playAgain = ticTacToeMssgFont.render("Play Again?", True, (255, 255, 255))
             screen.blit(whoWonMssg, (100, 100))
