@@ -96,27 +96,25 @@ def showTictactoeBoard(player1, player2, player1Score, player2Score, chance, who
 # function checking end of game
 def checkEndGame(playersChoiceList):
     for i in range(3):
-        if playersChoiceList[i] == 0:
-            continue
         if playersChoiceList[i] == playersChoiceList[i + 3] and playersChoiceList[i] == playersChoiceList[i + 6]:
             if playersChoiceList[i] is not 0:
                 x = (166 * i) + 85
                 pygame.draw.line(screen, White, (x, 60), (x, 540), 10)
-            return playersChoiceList[i]
+                return playersChoiceList[i]
         if playersChoiceList[3 * i] == playersChoiceList[3 * i + 1] and playersChoiceList[3 * i + 1] == \
                 playersChoiceList[3 * i + 2]:
             if playersChoiceList[3 * i] is not 0:
                 y = i * 166 + 50 + 85
                 pygame.draw.line(screen, White, (10, y), (490, y), 10)
-            return playersChoiceList[3 * i]
+                return playersChoiceList[3 * i]
     if playersChoiceList[0] == playersChoiceList[4] and playersChoiceList[4] == playersChoiceList[8]:
         if playersChoiceList[0] is not 0:
             pygame.draw.line(screen, White, (10, 60), (490, 540), 10)
-        return playersChoiceList[0]
+            return playersChoiceList[0]
     if playersChoiceList[2] == playersChoiceList[4] and playersChoiceList[4] == playersChoiceList[6]:
         if playersChoiceList[2] is not 0:
             pygame.draw.line(screen, White, (490, 60), (10, 540), 10)
-        return playersChoiceList[2]
+            return playersChoiceList[2]
     for i in range(9):
         if playersChoiceList[i] == 0:
             return 0
@@ -126,8 +124,6 @@ def checkEndGame(playersChoiceList):
 # function which checks only end of game but does not draw any lines
 def checkEndGameDontDraw(playersChoiceList):
     for i in range(3):
-        if playersChoiceList[i] == 0:
-            continue
         if playersChoiceList[i] == playersChoiceList[i + 3] and playersChoiceList[i] == playersChoiceList[i + 6]:
             return playersChoiceList[i]
         if playersChoiceList[3 * i] == playersChoiceList[3 * i + 1] and playersChoiceList[3 * i + 1] == \
@@ -155,6 +151,7 @@ def getBestMove(playersChoiceList):
             if score > bestScore:
                 bestScore = score
                 move = i
+    print( str(i) + " " + str(bestScore))
     return move
 
 
@@ -355,13 +352,16 @@ def game():
                         if playersChoiceList[i] is 0:
                             if chance == 1:
                                 playersChoiceList[i] = 1
-                                i = getBestMove(playersChoiceList)
-                                if playersChoiceList[i] is 0:
-                                    playersChoiceList[i] = 2
+                                chance = 2
+                                whoWon = checkEndGame(playersChoiceList)
+                                if whoWon == 1:
+                                    player1Score += 1
+                                if whoWon == 2:
+                                    player2Score += 1
                 showTictactoeBoard("You", "Comp", str(player1Score), str(player2Score), chance, whoWon,
                                    playersChoiceList)
                 pygame.display.update()
-                if chance == 2:
+                if chance == 2 and whoWon is 0:
                     chance = 1
                     i = getBestMove(playersChoiceList)
                     if playersChoiceList[i] is 0:
@@ -400,6 +400,7 @@ def game():
                             elif chance == 2:
                                 playersChoiceList[i] = 2
                                 chance = 1
+                            #print(playersChoiceList,whoWon)
                         # print(x, y, playersChoiceList, whoWon)
                 showTictactoeBoard("Player 1", "Player 2", str(player1Score), str(player2Score), chance, whoWon,
                                    playersChoiceList)
