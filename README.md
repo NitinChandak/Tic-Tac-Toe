@@ -3,13 +3,10 @@
 
 2. The player who succeeds in placing three of their marks in a horizontal, vertical, or diagonal row is the winner.
 
-<<<<<<< HEAD
 3. It has two options:
     1) Single player: where the user has to play against the computer
     2) Double player: where two people can play against each other.
-=======
 You can install pygame using **`$pip3 install pygame`**
->>>>>>> 1d4a4c1fcc6749022f6657c43d7e9f5bf93afe0a
 
 4. Each option can be played for 3,4 or 5 points which means that, the game finishes after any player scores 3,4 or 5 points. After this you can either quit the game or play again.
 
